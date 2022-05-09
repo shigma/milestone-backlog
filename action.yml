@@ -1,0 +1,17 @@
+﻿name: 'Milestoned Issue Backlog'
+description: 'Backlog (de)milestoned issues.'
+inputs:
+  token:
+    description: Personal Access Token for issue editing.
+    required: true
+  label:
+    description: Plan issue label for filtering.
+    required: true
+    default: 'plan'
+  creator:
+    description: Plan issue creator for filtering.
+    required: false
+    default: '*'
+runs:
+  using: node16
+  main: dist/index.js
