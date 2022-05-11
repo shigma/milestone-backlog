@@ -24,7 +24,7 @@ According to the [doc](https://octokit.github.io/rest.js/v18#issues-update):
 
 You should provide a GitHub [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with repo permission (which is suggested to belong to a machine user).
 
-### `issue` *optional*
+### `label` *optional*
 
 default: `plan`
 
