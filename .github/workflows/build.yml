@@ -1,0 +1,32 @@
+﻿name: Build
+
+on:
+  push:
+    branches:    
+      - 'master'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Packages
+      run: pnpm i --frozen-lockfile
+    - name: Build
+      run: |
+        esbuild index.ts --bundle --minify --sourcemap --sources-content=false --platform=node --target=node16 --outdir=dist
+        mv action.yml ./dist/action.yml
+    - name: Distribute
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        user_name: "GitHub Actions"
+        user_email: "actions@github.com"
+        publish_branch: "dist"
+        publish_dir: ./dist
