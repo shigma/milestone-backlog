@@ -4,6 +4,11 @@ on:
   push:
     branches:    
       - 'master'
+    paths:
+    - 'action.yml'
+    - 'index.ts'
+    - 'pnpm-lock.yaml'
+    - '.github/workflows/build.yml'
 
 jobs:
   build:
@@ -17,10 +22,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install Packages
-      run: pnpm i --frozen-lockfile
+      run: |
+        corepack enable
+        corepack prepare pnpm@7.1.0 --activate
+        pnpm i --frozen-lockfile
     - name: Build
       run: |
-        esbuild index.ts --bundle --minify --sourcemap --sources-content=false --platform=node --target=node16 --outdir=dist
+        pnpm esbuild index.ts --bundle --minify --sourcemap --sources-content=false --platform=node --target=node16 --outdir=dist
         mv action.yml ./dist/action.yml
     - name: Distribute
       uses: peaceiris/actions-gh-pages@v3
