@@ -4,6 +4,10 @@ inputs:
   token:
     description: Personal Access Token for issue editing.
     required: true
+  header:
+    description: Where the backlog list starts with.
+    required: false
+    default: '# Backlog'
   label:
     description: Plan issue label for filtering.
     required: false

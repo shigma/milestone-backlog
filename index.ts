@@ -3,6 +3,7 @@ import * as core from '@actions/core'
 
 const getRequiredInput = (name: string) => core.getInput(name, { required: true })
 const token = getRequiredInput('token')
+const header = core.getInput('header')
 const creator = core.getInput('creator')
 const label = core.getInput('label')
 
@@ -26,7 +27,7 @@ async function run() {
     ...repo,
     creator: creator,
     milestone: milestone.number,
-    labels: 'plan'
+    labels: label
   }
   if (creator === '*')
     delete filter.creator
@@ -36,12 +37,13 @@ async function run() {
     return
   }
   const plan = data[0] // plan is a issue
-  const [, above, backlog, below = ''] = plan.body.match(/(.*# Backlog\s*)(\n(?:- [^-\r\n]+\r?\n)*)(.*)/s) // assuming there is linebreak after list
+  const [, above, backlog, below = ''] =
+    plan.body.match(new RegExp(`(.*${header}\\s*)((?:- [^-\\r\\n]+\\r?\\n)*)(.*)`, 's'))
   core.info(`above: ${JSON.stringify(above)}\nbacklog: ${JSON.stringify(backlog)}\nbelow: ${JSON.stringify(below)}`)
 
   let new_backlog = backlog.replace(/\r\n/g, '\n')
   if (action === 'demilestoned') {
-    const regex = new RegExp(`(?<=\\n)- \\[[ x]\\] #${issue.number} \\n`)
+    const regex = new RegExp(`^- \\[[ x]\\] #${issue.number} $`, 'm')
     if (new_backlog.match(regex)) {
       core.info('removed')
       new_backlog = new_backlog.replace(regex, '')
