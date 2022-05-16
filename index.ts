@@ -26,7 +26,7 @@ async function run() {
     ...repo,
     creator: creator,
     milestone: milestone.number,
-    labels: 'plan'
+    labels: label
   }
   if (creator === '*')
     delete filter.creator
