@@ -1,10 +1,12 @@
-name: Build
+﻿name: Build
 
 on:
   workflow_dispatch:
   push:
-    branches:    
-      - 'master'
+    branches:
+    - 'master'
+    tags:
+    - 'source/v*.*.*'
     paths:
     - 'action.yml'
     - 'index.ts'
@@ -13,7 +15,6 @@ on:
 
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-20.04
     steps:
     - name: Setup Node
@@ -22,15 +23,20 @@ jobs:
         node-version: '16'
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Install Packages
+    - name: Install & Build
       run: |
         corepack enable
         corepack prepare pnpm@7.1.0 --activate
         pnpm i --frozen-lockfile
-    - name: Build
+        pnpm build
+        mv action.yml dist/action.yml
+
+    - name: Prepare tag
+      id: tag
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: |
-        pnpm esbuild index.ts --bundle --minify --sourcemap --sources-content=false --platform=node --target=node16 --outdir=dist
-        mv action.yml ./dist/action.yml
+        VERSION="${GITHUB_REF##refs/tags/source/}"
+        echo "::set-output name=version::${VERSION}"
     - name: Distribute
       uses: peaceiris/actions-gh-pages@v3
       with:
@@ -39,3 +45,13 @@ jobs:
         user_email: "actions@github.com"
         publish_branch: "dist"
         publish_dir: ./dist
+        enable_jekyll: true # not to create .nojekyll since this is not a gh page
+        commit_message: 'distribute:'
+        tag_name: ${{ steps.tag.outputs.version }} # wouldn't create if empty
+        tag_message: 'distribute ${{ steps.tag.outputs.version }}'
+    - name: Tag Tracking
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      uses: H4M5TER/tag-semver-tracking@v1
+      with:
+        tag: ${{ steps.tag.outputs.version }}
+        token: ${{ secrets.GITHUB_TOKEN }}
