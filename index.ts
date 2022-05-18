@@ -43,7 +43,7 @@ async function run() {
 
   let new_backlog = backlog.replace(/\r\n/g, '\n')
   if (action === 'demilestoned') {
-    const regex = new RegExp(`^- \\[[ x]\\] #${issue.number} $`, 'm')
+    const regex = new RegExp(`^- \\[[ x]\\] #${issue.number}\\s+`, 'm')
     if (new_backlog.match(regex)) {
       core.info('removed')
       new_backlog = new_backlog.replace(regex, '')
